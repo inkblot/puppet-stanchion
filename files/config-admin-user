@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# ex: syntax=ruby si ts=4 sw=4 et
+
+require 'yaml'
+require 'tempfile'
+require 'fileutils'
+
+values = YAML.load(IO.read('/etc/facter/facts.d/riakcs.yaml'))
+temp = Tempfile.new('app.config')
+File.open('/etc/stanchion/app.config', 'r') do |file|
+    file.each_line do |line|
+        case line
+            when /{admin_key, \"admin-key\"},/
+                temp.puts "                   {admin_key, \"#{values['riakcs_admin_key']}\"},"
+            when /{admin_secret, \"admin-secret\"}/
+                temp.puts "                   {admin_secret, \"#{values['riakcs_admin_secret']}\"}"
+            else
+                temp.puts line
+        end
+    end
+end
+temp.close
+FileUtils.cp(temp.path, '/etc/stanchion/app.config')
+FileUtils.chown('stanchion', 'riak', '/etc/stanchion/app.config')
+FileUtils.chmod(0644, '/etc/stanchion/app.config')
