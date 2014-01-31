@@ -5,14 +5,20 @@ class stanchion (
     $service_name        = $::stanchion::params::service_name,
     $stanchion_ipaddress = $::stanchion::params::stanchion_ipaddress,
     $riak_ipaddress      = $::stanchion::params::riak_ipaddress,
+    $admin_key           = $::stanchion::params::admin_key,
+    $admin_secret        = $::stanchion::params::admin_secret,
 ) inherits stanchion::params {
-    $admin_key = $::riakcs_admin_key ? {
-        '' => 'admin-key',
-        default => $::riakcs_admin_key,
-    }
-    $admin_secret = $::riakcs_admin_secret ? {
-        '' => 'admin-secret',
-        default => $::riakcs_admin_secret,
+    # See riakcs class for cluster bootstrap information.  The fact values
+    # must be either established as fact or passed 
+    if $::riakcs_admin_key != '' and $::riakcs_admin_secret != '' {
+        $_admin_key = $::riakcs_admin_key
+        $_admin_secret = $::riakcs_admin_secret
+    } elsif $admin_key != '' and $admin_secret != '' {
+        $_admin_key = $admin_key
+        $_admin_secret = $admin_secret
+    } else {
+        $_admin_key = 'admin-key'
+        $_admin_secret = 'admin-secret'
     }
 
     File {
@@ -53,7 +59,7 @@ class stanchion (
         before  => Service['riak-cs'],
     }
 
-    if $admin_key == 'admin-key' {
+    if $_admin_key == 'admin-key' {
         class { 'stanchion::config_admin': }
     }
 }
