@@ -5,4 +5,6 @@ class stanchion::params {
     $service_name        = 'stanchion'
     $stanchion_ipaddress = '127.0.0.1'
     $riak_ipaddress      = '127.0.0.1'
+    $admin_key           = ''
+    $admin_secret        = ''
 }
