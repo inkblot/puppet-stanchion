@@ -10,9 +10,9 @@ temp = Tempfile.new('app.config')
 File.open('/etc/stanchion/app.config', 'r') do |file|
     file.each_line do |line|
         case line
-            when /{admin_key, \"admin-key\"},/
+            when /\{admin_key, \"admin-key\"\},/
                 temp.puts "                   {admin_key, \"#{values['riakcs_admin_key']}\"},"
-            when /{admin_secret, \"admin-secret\"}/
+            when /\{admin_secret, \"admin-secret\"\}/
                 temp.puts "                   {admin_secret, \"#{values['riakcs_admin_secret']}\"}"
             else
                 temp.puts line
